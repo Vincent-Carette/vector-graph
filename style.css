@@ -18,9 +18,9 @@ html, body {
 .equationTemplate {
     width: 100%;
     height: 10vh;
-    border: none;
+    border: 1px #fff;
     outline: none;
     background-color: #262626;
     color: #fff;
-    font-size: 75%;
+    font-size: 3vh;
 }
