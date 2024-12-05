@@ -21,4 +21,6 @@ html, body {
     border: none;
     outline: none;
     background-color: #262626;
+    color: #fff;
+    font-size: 75%;
 }
