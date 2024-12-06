@@ -15,10 +15,10 @@ html, body {
     display: flex;
 }
 
-.equationTemplate {
+.equation {
     width: 100%;
     height: 10vh;
-    border: 1px #fff solid;
+    border: 1px #575757 solid;
     outline: none;
     background-color: #262626;
     color: #fff;
