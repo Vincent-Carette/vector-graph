@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Cambria Math';
+    src: url("./cambria-math.ttf");
+}
+
 html, body {
     background-color: #262626;
     width: 100vw;
@@ -13,15 +18,32 @@ html, body {
     top: 0;
     background-color: #1a1a1a;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 }
 
-.equation {
-    width: 100%;
+.equationWrapper {
+    margin: 0;
     height: 10vh;
     border: 1px #575757 solid;
     outline: none;
     background-color: #262626;
+}
+
+.equation {
+    font-family: 'Cambria Math';
+    width: calc(100% - 1px);
+    height: 10vh;
+    background: none;
     color: #fff;
+    margin: 0;
+    border-radius: 0;
+    outline: none;
+    border: none;
+    margin-top: -1px;
+    margin-left: -1px;
     font-size: 3vh;
+}
+
+.equationWrapper + .equationWrapper {
+    border-top: none;
 }
