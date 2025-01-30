@@ -74,7 +74,8 @@ function getChangeIndex(newVal, oldVal) {
 for (let i = 0; i < equations.length; i++) {
     let oldText = ""
     equations[i].oninput = function(event) {
-        let changeIndex = getChangeIndex(equations[i].value, oldText)
+        // let changeIndex = getChangeIndex(equations[i].value, oldText)
+        let changeIndex = this.selectionStart
         let data = event.data
 
         for (let k in replacers) {
