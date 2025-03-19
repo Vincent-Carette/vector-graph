@@ -1,119 +1,106 @@
-let equations = document.querySelectorAll(".equation")
-let lastFullSelection = ""
-let lastSelection = ""
+let graph = document.querySelector(".graph")
+let ctx = graph.getContext("2d")
+let size = 10
+let objects = []
 
-function getSelectionText() {
-    let text = "";
-    const activeEl = document.activeElement;
-    const activeElTagName = activeEl ? activeEl.tagName.toLowerCase() : null;
+graph.width = window.innerWidth * 0.7
+graph.height = window.innerHeight
 
-    if (
-      (activeElTagName == "textarea") || (activeElTagName == "input" &&
-      /^(?:text|search|password|tel|url)$/i.test(activeEl.type)) &&
-      (typeof activeEl.selectionStart == "number")
-    ) {
-        text = activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
-    } else if (window.getSelection) {
-        text = window.getSelection().toString();
-    }
+let width = graph.clientWidth
+let height = graph.clientHeight
 
-    return text;
-}
-
-function setCaretPosition(elem, caretPos) {
-    if(elem != null) {
-        if(elem.createTextRange) {
-            var range = elem.createTextRange();
-            range.move('character', caretPos);
-            range.select();
-        }
-        else {
-            if(elem.selectionStart) {
-                elem.focus();
-                elem.setSelectionRange(caretPos, caretPos);
-            }
-            else
-                elem.focus();
-        }
+function redraw() {
+    ctx.clearRect(0, 0, graph.width, graph.height)
+    ctx.beginPath()
+    for (let i = 0; i < objects.length; i++) {
+        objects[i].draw(ctx)
     }
 }
 
-document.onmouseup = document.onkeyup = document.onselectionchange = function() {
-    let selText = getSelectionText()
-    
-    if (selText != "") {
-        lastFullSelection = getSelectionText()
-    }
+ctx.lineWidth = 1
+ctx.strokeStyle = "#fff"
+ctx.moveTo(0, height / 2)
+ctx.lineTo(width, height / 2)
+ctx.stroke()
+objects.push(new CanvasObject("line", [width, height / 2], [0, height / 2]))
+ctx.moveTo(width / 2, 0)
+ctx.lineTo(width / 2, height)
+ctx.stroke()
+objects.push(new CanvasObject("line", [width / 2, height], [width / 2, 0]))
 
-    lastSelection = selText
+function canvas_arrow(context, fromx, fromy, tox, toy) {
+    var headlen = 10;
+    var dx = tox - fromx
+    var dy = toy - fromy
+    var angle = Math.atan2(dy, dx)
+    context.moveTo(fromx, fromy)
+    context.lineTo(tox, toy)
+    context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6))
+    context.moveTo(tox, toy)
+    context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6))
+    ctx.stroke()
 }
 
-let replacers = {
-    "pi": "π",
-    "*": "·",
+function plotVector(vec) {
+    let pos = [
+        width / size * vec[0] / 2 + width / 2,
+        height / -size * vec[1] / 2 + height / 2
+    ]
+    canvas_arrow(ctx, width / 2, height / 2, pos[0], pos[1])
+    let newObj = new CanvasObject("vector", vec)
+    return newObj
 }
 
-let wrappers = {
-    "{": "}",
-    "(": ")",
-    "|": "|"
-}
-
-function getChangeIndex(newVal, oldVal) {
-    for (let i = 0; i < newVal.length; i++) {
-        if (newVal[i] != oldVal[i]) {
-            return i
-        }
-    }
-    if (newVal.length != oldVal.length) {
-        return 0
-    }
-    return -1
-}
-
-for (let i = 0; i < equations.length; i++) {
-    let oldText = ""
-    equations[i].oninput = function(event) {
-        // let changeIndex = getChangeIndex(equations[i].value, oldText)
-        let changeIndex = this.selectionStart
-        let data = event.data
-
-        for (let k in replacers) {
-            if (equations[i].value.includes(k)) {
-                equations[i].value = equations[i].value.replace(k, replacers[k])
-                data = replacers[k]
-                setCaretPosition(equations[i], changeIndex)
-            }
-        }
-
-        if (data == "+" || data == "=" || data == "·") {
-            equations[i].value = equations[i].value.slice(0, changeIndex) + " " + data + " " +
-                equations[i].value.slice(changeIndex + 1, equations[i].value.length)
-            setCaretPosition(equations[i], changeIndex + 3)
-        }
-
-        if (data == ",") {
-            equations[i].value = equations[i].value.slice(0, changeIndex) + data + " " +
-                equations[i].value.slice(changeIndex + 1, equations[i].value.length)
-            setCaretPosition(equations[i], changeIndex + 2)
-        }
-        
-        if (lastSelection != "") {
-            for (let k in wrappers) {
-                if (data == k) {
-                    equations[i].value = oldText.slice(0, changeIndex) + k + lastFullSelection + wrappers[k] +
-                        oldText.slice(changeIndex + lastFullSelection.length, oldText.length)
-                    setCaretPosition(equations[i], changeIndex + lastFullSelection.length + 1)
-                }
-            }
-        } else {
-            if (Object.keys(wrappers).includes(data)) {
-                equations[i].value = equations[i].value.slice(0, changeIndex) + data + wrappers[data] +
-                    equations[i].value.slice(changeIndex + 1, equations[i].value.length)
-                setCaretPosition(equations[i], changeIndex + 1)
-            }
-        }
-
-        oldText = equations[i].value
+for (let i = 0; i < size * 2 + 1; i++) {
+    let pos = width / (size * 2) * i
+    ctx.moveTo(pos, height / 2 + 5)
+    ctx.lineTo(pos, height / 2 - 5)
+    ctx.stroke()
+    objects.push(new CanvasObject("line", [pos, height / 2 - 5], [pos, height / 2 + 5]))
+    ctx.font = "15px Arial"
+    ctx.fillStyle = "#fff"
+    if (i - size != 0) {
+        ctx.fillText(
+            i - size,
+            pos - ctx.measureText((i - size).toString(10).replace("-", "--")).width / 2,
+            height / 2 + 25
+        )
+        objects.push(new CanvasObject("text", [
+            pos - ctx.measureText((i - size).toString(10).replace("-", "--")).width / 2,
+            height / 2 + 25
+        ], i - size))
+    } else {
+        ctx.fillText("0", width / 2 - ctx.measureText("0").width - 10, height / 2 + 25)
+        objects.push(new CanvasObject("text", [
+            width / 2 - ctx.measureText("0").width - 10,
+            height / 2 + 25
+        ], "0"))
     }
 }
+
+for (let i = 0; i < size * 2 + 1; i++) {
+    let pos = height / (size * 2) * i
+    ctx.moveTo(width / 2 + 5, pos)
+    ctx.lineTo(width / 2 - 5, pos)
+    objects.push(new CanvasObject("line", [width / 2 - 5, pos], [width / 2 + 5, pos]))
+    ctx.stroke()
+    ctx.font = "15px Arial"
+    ctx.fillStyle = "#fff"
+    if (i - size != 0) {
+        ctx.fillText((size * 2 - i) - size, width / 2 + 15, pos + 15/4)
+        objects.push(new CanvasObject("text", [
+            width / 2 + 15,
+            pos + 15 / 4
+        ], (size * 2 - i) - size))
+    }
+}
+
+let i = 0
+setInterval(function() {
+    if (i > 100) {return}
+    let vec = plotVector([i / 100, 3])
+    objects.push(vec)
+    redraw()
+    vec.remove()
+    i++
+}, 10)
