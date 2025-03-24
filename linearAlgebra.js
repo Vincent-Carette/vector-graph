@@ -88,7 +88,7 @@ class Matrix {
     multiply(other) {
         if (other.rows != this.columns) {
             alert("Multiplication failed: columns not equal to other matrix's rows.")
-            return
+            return "failed"
         }
         let newMat = new Matrix(this.rows, other.columns)
         let otherColumns = this.getColumns()
@@ -113,4 +113,26 @@ class Matrix {
         newMat.addValues(Matrix.convertColumnsToValues(newColumns))
         return newMat
     }
+}
+
+function clamp(num, min, max) {
+    if (num > max) {return max}
+    if (num < min || !num) {return min}
+    return num
+}
+
+function parseStringToCalculatedNum(str) {
+    let newStr = str
+    if (!parseFloat(newStr)) {
+        newStr = "0"
+    }
+    return parseFloat(newStr)
+}
+
+function parseDataSet(arr) {
+    let toReturn = []
+    for (let i = 0; i < arr.length; i++) {
+        toReturn.push(parseStringToCalculatedNum(arr[i]))
+    }
+    return toReturn
 }

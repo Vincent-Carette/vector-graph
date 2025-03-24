@@ -8,6 +8,7 @@ html, body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    color: #fff;
 }
 
 .equations {
@@ -19,6 +20,12 @@ html, body {
     background-color: #1a1a1a;
     display: flex;
     flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    display: none;
 }
 
 .equationWrapper {
@@ -27,25 +34,50 @@ html, body {
     border: 1px #575757 solid;
     outline: none;
     background-color: #262626;
-}
-
-.equation {
-    font-family: 'Cambria Math';
-    width: calc(100% - 1px);
-    height: 10vh;
-    background: none;
-    color: #fff;
-    margin: 0;
-    border-radius: 0;
-    outline: none;
-    border: none;
-    margin-top: -1px;
-    margin-left: -1px;
-    font-size: 3vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.3vw;
 }
 
 .equationWrapper + .equationWrapper {
     border-top: none;
+}
+
+.newMatrix {
+    width: 2vw;
+    height: 3vh;
+    margin-left: 1vw;
+    margin-right: 1vw;
+    background-color: #1a1a1a;
+    outline: none;
+    border: none;
+    color: #fff;
+    font-family: "Cambria Math";
+    text-align: center;
+}
+
+.matrix {
+    width: calc(30vw - 2px);
+    height: 15vh;
+    background-color: #262626;
+    border: 1px #575757 solid;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+}
+
+.matrixVal {
+    width: 2vw;
+    height: 3vh;
+    margin-left: 1vw;
+    margin-right: 1vw;
+    background-color: #1a1a1a;
+    outline: none;
+    border: none;
+    color: #fff;
+    font-family: "Cambria Math";
+    text-align: center;
 }
 
 .graph {

@@ -2,6 +2,7 @@ let graph = document.querySelector(".graph")
 let ctx = graph.getContext("2d")
 let size = 10
 let objects = []
+let matrices = {}
 
 graph.width = window.innerWidth * 0.7
 graph.height = window.innerHeight
@@ -95,12 +96,68 @@ for (let i = 0; i < size * 2 + 1; i++) {
     }
 }
 
-let i = 0
-setInterval(function() {
-    if (i > 100) {return}
-    let vec = plotVector([i / 100, 3])
-    objects.push(vec)
-    redraw()
-    vec.remove()
-    i++
-}, 10)
+document.onkeydown = function(e) {
+    if (document.activeElement.tagName != "INPUT" && e.key == "/") {
+        e.preventDefault()
+        document.getElementById("rows").focus()
+    }
+    if ((document.activeElement.id == "rows" || document.activeElement.id == "columns") && !parseInt(e.key)) {
+        if (document.activeElement.id == "columns" && e.key == "Enter") {
+            document.getElementById("rows").value = clamp(parseInt(document.getElementById("rows").value), 1, 6)
+            document.getElementById("columns").value = clamp(parseInt(document.getElementById("columns").value), 1, 6)
+
+            let rowsVal = parseInt(document.getElementById("rows").value)
+            let columnsVal = parseInt(document.getElementById("columns").value)
+            let newWrapper = document.createElement("div")
+            newWrapper.classList.add("matrixWrapper")
+            let newMatrixElem = document.createElement("div")
+
+            document.getElementById("rows").value = ""
+            document.getElementById("columns").value = ""
+
+            newMatrixElem.classList.add("matrix")
+            newWrapper.appendChild(newMatrixElem)
+            document.querySelector(".matrices").appendChild(newWrapper)
+            let newMatrix = new Matrix(rowsVal, columnsVal)
+            newMatrixElem.style = `grid-template-columns: repeat(${columnsVal}, 0fr);`
+            matrices[newMatrixElem] = [newMatrix, []]
+            let newVec
+
+            for (let i = 0; i < rowsVal * columnsVal; i++) {
+                let newMatrixVal = document.createElement("input")
+                newMatrixVal.placeholder = "0"
+                newMatrixVal.autocomplete = "off"
+                newMatrixVal.type = "text"
+                newMatrixVal.classList.add("matrixVal")
+                newMatrixVal.onkeydown = function() {
+                    setTimeout(function() {
+                        matrices[newMatrixElem][1][i] = newMatrixVal.value
+                        newMatrix.addValues(parseDataSet(matrices[newMatrixElem][1]))
+                        if (rowsVal == 2 && columnsVal == 1) {
+                            newVec.pos = [newMatrix.values[0], newMatrix.values[1]]
+                            redraw()
+                        }
+                    }, 1)
+                }
+                newMatrixElem.appendChild(newMatrixVal)
+                if (columnsVal > 4) {
+                    newMatrixVal.style.width = "1vw"
+                    newMatrixVal.style.height = "1.5vh"
+                }
+                matrices[newMatrixElem][1].push("0")
+            }
+            if (rowsVal == 2 && columnsVal == 1) {
+                newVec = plotVector(newMatrix.values)
+                objects.push(newVec)
+                redraw()
+            }
+        }
+        if (e.key != "Backspace" && e.key != "Enter" && e.key != "Tab" && e.key != "0") {
+            e.preventDefault()
+        }
+        if (document.activeElement.id == "rows" && e.key == "Enter") {
+            document.getElementById("columns").focus()
+            e.preventDefault()
+        }
+    }
+}
